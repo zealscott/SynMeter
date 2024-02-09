@@ -1,0 +1,38 @@
+# template tabddpm config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/tabddpm/loss.csv"
+out_model = "exp/abalone/tabddpm/tabddpm.pt"
+out_data = "exp/abalone/tabddpm/abalone.csv"
+fidelity_result = "exp/abalone/tabddpm/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/tabddpm/fidelity_train_result.csv"
+privacy_result = "exp/abalone/tabddpm/privacy_result.csv"
+utility_result = "exp/abalone/tabddpm/utility_result.csv"
+
+[model_params]
+steps = 30000
+lr = 0.0002776
+weight_decay = 0.0
+batch_size = 4096
+num_timesteps = 1000
+d_layers = [
+    1024,
+    1024,
+    1024,
+    1024,
+    1024,
+    1024,
+    1024,
+    128,
+]
+dropout = 0.0
+
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the training data

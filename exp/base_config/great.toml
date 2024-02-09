@@ -1,0 +1,24 @@
+# template GreaT config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/great/loss.csv"
+out_model = "exp/abalone/great/great.pt"
+out_data = "exp/abalone/great/abalone.csv"
+fidelity_result = "exp/abalone/great/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/great/fidelity_train_result.csv"
+privacy_result = "exp/abalone/great/privacy_result.csv"
+utility_result = "exp/abalone/great/utility_result.csv"
+
+[model_params]
+epochs = 200
+batch_size = 8
+temperature = 0.7   # Controls the softmax function for token sampling.
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

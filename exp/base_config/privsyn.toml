@@ -1,0 +1,25 @@
+# template privsyn config file
+
+[path_params]
+meta_data = "datasets/adult_test/adult.json"
+raw_data = "datasets/adult_test/adult.csv"
+train_data = "datasets/adult/train.csv"
+val_data = "datasets/adult/val.csv"
+test_data = "datasets/adult/test.csv"
+loss_record = "exp/adult/privsyn/loss.csv"
+out_model = "exp/adult/privsyn/privsyn.pkl"
+out_data = "exp/adult/privsyn/adult.csv"
+fidelity_result = "exp/abalone/privsyn/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/privsyn/fidelity_train_result.csv"
+privacy_result = "exp/abalone/privsyn/privacy_result.csv"
+utility_result = "exp/abalone/privsyn/utility_result.csv"
+
+[model_params]
+epsilon = 100000000.0 # infinite privacy budget
+delta = 3.4498908254380166e-11
+max_bins = 100
+update_iterations = 50
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

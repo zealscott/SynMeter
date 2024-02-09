@@ -1,0 +1,28 @@
+# template MST config file
+
+[path_params]
+meta_data = "datasets/adult_test/adult-domain.json"
+raw_data = "datasets/adult_test/adult.csv"
+train_data = "datasets/adult/train.csv"
+val_data = "datasets/adult/val.csv"
+test_data = "datasets/adult/test.csv"
+loss_record = "exp/adult/mst/loss.csv"
+out_model = "exp/adult/mst/mst.pkl"
+out_data = "exp/adult/mst/adult.csv"
+fidelity_result = "exp/abalone/mst/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/mst/fidelity_train_result.csv"
+privacy_result = "exp/abalone/mst/privacy_result.csv"
+utility_result = "exp/abalone/mst/utility_result.csv"
+
+[model_params]
+epsilon = 30000000.0 # infinite privacy budget
+delta = 1e-9
+max_bins = 100
+num_iters = 5000
+bi_nums = 30
+tri_nums = 30
+2_cliques = []
+3_cliques = []
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

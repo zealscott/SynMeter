@@ -1,0 +1,28 @@
+# template tablediffusion_eps_1 config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/tablediffusion_eps_1/loss.csv"
+out_model = "exp/abalone/tablediffusion_eps_1/tablediffusion_eps_1.pt"
+out_data = "exp/abalone/tablediffusion_eps_1/abalone.csv"
+fidelity_result = "exp/abalone/tablediffusion_eps_1/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/tablediffusion_eps_1/fidelity_train_result.csv"
+privacy_result = "exp/abalone/tablediffusion_eps_1/privacy_result.csv"
+utility_result = "exp/abalone/tablediffusion_eps_1/utility_result.csv"
+
+[model_params]
+predict_noise = true
+batch_size = 512
+lr = 0.005
+d_layers = [128, 128]
+diffusion_steps = 5
+epsilon_target = 1.0
+epoch_target = 5
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the training data

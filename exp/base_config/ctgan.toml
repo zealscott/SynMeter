@@ -1,0 +1,30 @@
+# template CTGAN config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/ctgan/loss.csv"
+out_model = "exp/abalone/ctgan/ctgan.pt"
+out_data = "exp/abalone/ctgan/abalone.csv"
+fidelity_result = "exp/abalone/ctgan/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/ctgan/fidelity_train_result.csv"
+privacy_result = "exp/abalone/ctgan/privacy_result.csv"
+utility_result = "exp/abalone/ctgan/utility_result.csv"
+
+[model_params]
+epochs = 300
+batch_size = 500
+generator_lr = 2e-4
+discriminator_lr = 2e-4
+generator_decay = 1e-6
+discriminator_decay = 0
+embedding_dim = 128
+generator_dim = [128, 128]
+discriminator_dim = [256, 256]
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

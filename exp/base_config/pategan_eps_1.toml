@@ -1,0 +1,29 @@
+# template PATEGAN config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/pategan_eps_1/loss.csv"
+out_model = "exp/abalone/pategan_eps_1/pategan_eps_1.pt"
+out_data = "exp/abalone/pategan_eps_1/abalone.csv"
+fidelity_result = "exp/abalone/pategan_eps_1/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/pategan_eps_1/fidelity_train_result.csv"
+privacy_result = "exp/abalone/pategan_eps_1/privacy_result.csv"
+utility_result = "exp/abalone/pategan_eps_1/utility_result.csv"
+
+[model_params]
+n_iter = 1000
+generator_n_layers_hidden = 2
+generator_n_units_hidden = 100
+discriminator_n_layers_hidden = 2
+discriminator_n_units_hidden = 100 
+n_teachers = 10
+lr = 0.0001
+epsilon = 1.0 
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

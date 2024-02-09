@@ -6,18 +6,18 @@
 </h2>
 
 <h4 align="center">
-    A principled library for tuning, training and evaluating tabular data synthesis.
+    A principled library for tuning, training, and evaluating tabular data synthesis.
 </h4>
 
 
 <div align="center">
-  <img src="./docs/framework.png" height="370px">
+  <img src="./docs/framework.png">
 </div>
 
 
 ## Why SynMeter:
 - :dizzy: Easy to add new synthesizers, seamlessly tuning, training, and evaluating various synthesizers.
-- :cyclone: principled evaluation metrics for fidelity, privacy and utility.
+- :cyclone: principled evaluation metrics for fidelity, privacy, and utility.
 - :fire: Several SoTA synthesizers, by type:
     - Statistical methods: PGM, PrivSyn
     - GAN-based: CTGAN, PATE-GAN
@@ -47,18 +47,18 @@ ROOT_DIR = root_to_synmeter
 ## :boom: Usage
 
 ### Datasets
-*  SynMeter provides 12 standardized datasets with train/val/test datasets for benchmark, which can be downloaded from here: [Google Drive](https://drive.google.com/file/d/1WWvT5NemPC5ZhGXh5E2_80rrTAO-QQ7d/view?usp=sharing)
-*  You can also easily use additional dataset by putting it to `./dataset`. Please refer to wiki for details.
+*  SynMeter provides 12 standardized datasets with train/val/test datasets for benchmarking, which can be downloaded from here: [Google Drive](https://drive.google.com/file/d/1WWvT5NemPC5ZhGXh5E2_80rrTAO-QQ7d/view?usp=sharing)
+*  You can also easily use an additional dataset by putting it to `./dataset`. 
 
 ### Tune evaluators for utility evaluations
 * Machine learning affinity requires machine learning models with tuned hyperparameters, SynMeter provides 8 commonly-used machine learning models and their configurations in `./exp/evaluators`.
-* You can tune these evlautors on your custoimized dataset:
+* You can tune these evaluators on your customized dataset:
 ```sh
 python scripts/tune_evaluator.py -d [dataset] -c [cuda]
 ```
 
 ### Tune synthesizer
-We provide a unifed tuning objective for model tuning, thus, all kinds of synthesizers can be tuned by just single command:
+We provide a unified tuning objective for model tuning, thus, all kinds of synthesizers can be tuned by just a single command:
 ```sh
 python scripts/tune_synthesizer.py -d [dataset] -m [synthesizer] -s [seed] -c [cuda]
 ```
@@ -90,10 +90,10 @@ The results of the evaluations should be saved under the corresponding dictionar
 
 
 ## :book: Customize your own synthesizer
-One advantage of SynMeter is to provide a easiest way to add new synthesis algorithms, three steps are needed:
+One advantage of SynMeter is to provide the easiest way to add new synthesis algorithms, three steps are needed:
 1. Write new synthesis code in modularity into `./synthesizer/my_synthesiszer`
 2. Create a base configuration in `./exp/base_config`.
-3. Create a calling python function in `./synthesizer`, which contain three function: `train`, `sample`, and `tune`.
+3. Create a calling python function in `./synthesizer`, which contain three functions: `train`, `sample`, and `tune`.
 
 Then, you are free to tune, run and test the new synthesizer!
 

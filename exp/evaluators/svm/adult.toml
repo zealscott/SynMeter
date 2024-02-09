@@ -1,0 +1,3 @@
+C = 0.05011654704898035
+kernel = "linear"
+gamma = "scale"

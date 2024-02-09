@@ -1,0 +1,4 @@
+n_estimators = 180
+max_depth = 35
+min_samples_split = 2
+min_samples_leaf = 1

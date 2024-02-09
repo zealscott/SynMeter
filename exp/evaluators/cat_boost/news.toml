@@ -1,0 +1,8 @@
+learning_rate = 0.012660080827096616
+l2_leaf_reg = 1.0790487162904558
+depth = 7
+bagging_temperature = 0.9073547908271472
+leaf_estimation_iterations = 7
+iterations = 3000
+early_stopping_rounds = 50
+od_pval = 0.001

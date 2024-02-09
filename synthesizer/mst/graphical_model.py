@@ -34,7 +34,7 @@ class GraphicalModel:
 
         self.size = sum(domain.size(cl) for cl in self.cliques)
         print("current size of the model is %.2f GB" % (self.size*8 / 10**9))
-        if self.size*8 > 0.1*10**9: 
+        if self.size*8 > 1*10**9: 
             # give error instead of warning if the size of the parameter vector is too large
             raise ValueError('Size of parameter vector over 1 GB. Consider removing some measurements or finding a better elimination order')
             # import warnings

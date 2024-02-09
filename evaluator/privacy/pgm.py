@@ -4,9 +4,9 @@ import os
 from lib.info import *
 from evaluator.privacy.eval_helper import sample_half_data
 import pickle
-from synthesizer.pgm.data_trasnformer import DataTransformer
-from synthesizer.pgm import Dataset, reverse_data
-from synthesizer.pgm.train_wrapper import MST_no_privacy, MST_private
+from synthesizer.mst.data_trasnformer import DataTransformer
+from synthesizer.mst import Dataset, reverse_data
+from synthesizer.mst.train_wrapper import MST_no_privacy, MST_private
 
 
 def mst_trainer(args, data_pd, discrete_columns):

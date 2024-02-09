@@ -1,0 +1,3 @@
+C = 0.09068734050925718
+kernel = "linear"
+gamma = "auto"

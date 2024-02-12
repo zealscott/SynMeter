@@ -122,17 +122,17 @@ Then, you are free to tune, run and test the new synthesizer!
 
 ### Diffusion models
 
-| Method | Description | Reference |
-|--- | --- | --- |
-|**TabDDPM**| TabDDPM: Modelling Tabular Data with Diffusion Models. | [Paper](https://arxiv.org/abs/2209.15421) |
-|**TableDiffusion**| TabDDPM: Modelling Tabular Data with Diffusion Models. | [Paper](https://arxiv.org/abs/2308.14784) |
+| Method | Type | Description | Reference |
+|--- | --- | --- | --- |
+|**TabDDPM**| HP | TabDDPM: Modelling Tabular Data with Diffusion Models. | [Paper](https://arxiv.org/abs/2209.15421) |
+|**TableDiffusion**| DP | Generating tabular datasets under differential privacy. | [Paper](https://arxiv.org/abs/2308.14784) |
 
 
 ### Large Language Model (LLM)-based models
 
-| Method | Description | Reference |
-|--- | --- | --- |
-|**GReaT**| Language Models are Realistic Tabular Data Generators | [Paper](https://openreview.net/forum?id=cEygmQNOeI) |
+| Method | Type | Description | Reference |
+|--- | --- | --- | --- |
+|**GReaT**| HP | Language Models are Realistic Tabular Data Generators | [Paper](https://openreview.net/forum?id=cEygmQNOeI) |
 
 
 

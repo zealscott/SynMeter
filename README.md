@@ -38,7 +38,7 @@ pip install -r requirements.txt # install dependencies
 pip install -e . # package the library
 ```
 
-Change the base dictionary in `./info/ROOT_DIR`:
+Change the base dictionary in `./lib/info/ROOT_DIR`:
 ```
 ROOT_DIR = root_to_synmeter
 ```

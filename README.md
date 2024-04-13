@@ -6,7 +6,7 @@
 </h2>
 
 <h4 align="center">
-    A principled library for tuning, training, and evaluating tabular data synthesis.
+    A principled library for tuning, training, and evaluating tabular data synthesis. [<a href="./SynMeter_report.pdf">Technical Report</a>]
 </h4>
 
 

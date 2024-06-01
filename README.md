@@ -6,7 +6,7 @@
 </h2>
 
 <h4 align="center">
-    A principled library for tuning, training, and evaluating tabular data synthesis. [<a href="./docs/SynMeter_report.pdf">Technical Report</a>]
+    A principled library for tuning, training, and evaluating tabular data synthesis. [<a href="https://arxiv.org/abs/2402.06806">Technical Report</a>]
 </h4>
 
 
@@ -19,7 +19,7 @@
 - :dizzy: Easy to add new synthesizers, seamlessly tuning, training, and evaluating various synthesizers.
 - :cyclone: principled evaluation metrics for fidelity, privacy, and utility.
 - :fire: Several SoTA synthesizers, by type:
-    - Statistical methods: PGM, PrivSyn
+    - Statistical methods: MST, PrivSyn
     - GAN-based: CTGAN, PATE-GAN
     - VAE-based: TVAE
     - Diffusion-based: TabDDPM, TableDiffusion
@@ -103,7 +103,7 @@ Then, you are free to tune, run, and test the new synthesizer!
 ### Statistical methods
 | Method | Type | Description | Reference |
 |--- | --- | --- | --- |
-|**PGM**| DP |The method uses probabilistic graphical models to learn the dependence of low-dimensional marginals for data synthesis. | [Paper](https://arxiv.org/abs/1901.09136)|
+|**MST**| DP |The method uses probabilistic graphical models to learn the dependence of low-dimensional marginals for data synthesis. | [Paper](https://arxiv.org/abs/1901.09136)|
 |**PrivSyn**| DP | A non-parametric DP synthesizer, which iteratively updates the synthetic dataset to make it match the target noise marginals. | [Paper](https://arxiv.org/abs/2012.15128)|
 
 ### Generative adversarial networks (GANs)
@@ -140,7 +140,7 @@ Then, you are free to tune, run, and test the new synthesizer!
 ## :zap: Evaluation metrics
 - **Fidelity metrics**: we consider the Wasserstein distance as a principled fidelity metric, which is calculated by all one and two-way marginals.
 
-- **Privacy metrics**: we devise a Membership Disclosure Score (MDS) to measure the membership privacy risks of synthesizers.
+- **Privacy metrics**: we devise the Membership Disclosure Score (MDS) to measure the membership privacy risks of both HP and DP synthesizers.
 
 - **Utility metrics**: we use machine learning affinity and query error to measure the utility of synthetic data.
 

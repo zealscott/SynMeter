@@ -6,30 +6,27 @@ from lib.info import *
 from evaluator.privacy.eval_helper import sample_half_data
 
 
-def train_and_sample(args, data, membership_info, id, attack_dir, cuda):
+def train_and_sample(config, data, cur_shadow_dir, cuda, n_syn_dataset):
     """
-    train TVAE using given args
+    train TVAE using given config
     used when the best parameters are found and stored in `exp/`
     """
-    all_data_pd, discrete_columns, meta_data, dup_list = data
+    shadow_data_pd, discrete_columns, meta_data = data
     device = torch.device("cuda:" + cuda)
     # we fit the model enough to evaluate the privacy risk
-    args["model_params"]["epochs"] = 500
-    num_samples = args["sample_params"]["num_samples"]
+    config["model_params"]["epochs"] = 500
+    num_samples = len(shadow_data_pd)
 
-    train_index = sample_half_data(all_data_pd, dup_list, membership_info)
-    train_data_pd = all_data_pd.iloc[train_index]
-
-    model = init_model(args["model_params"], device)
+    model = init_model(config["model_params"], device)
 
     print("start training...")
-    model.fit(train_data_pd, discrete_columns)
+    model.fit(shadow_data_pd, discrete_columns)
 
     # save the model
-    os.makedirs(attack_dir, exist_ok=True)
-    torch.save(model, os.path.join(attack_dir, "model_{}.pt".format(id)))
+    os.makedirs(cur_shadow_dir, exist_ok=True)
+    torch.save(model, os.path.join(cur_shadow_dir, "model.pt"))
 
     print("start sampling...")
-    # sample from the trained model
-    sampled = model.sample(num_samples)
-    sampled.to_csv(os.path.join(attack_dir, "sampled_{}.csv".format(id)), index=False)
+    for i in range(n_syn_dataset):
+        sampled = model.sample(num_samples)
+        sampled.to_csv(os.path.join(cur_shadow_dir, "sampled_{}.csv".format(i)), index=False)

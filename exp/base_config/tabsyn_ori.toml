@@ -1,0 +1,29 @@
+# template tabsyn config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/tabsyn/loss.csv"
+out_model = "exp/abalone/tabsyn/tabsyn.pt"
+out_data = "exp/abalone/tabsyn/abalone.csv"
+fidelity_result = "exp/abalone/tabsyn/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/tabsyn/fidelity_train_result.csv"
+privacy_result = "exp/abalone/tabsyn/privacy_result.csv"
+utility_result = "exp/abalone/tabsyn/utility_result.csv"
+
+[model_params]
+# parameters for VAE
+max_beta = 1e-2
+min_beta = 1e-5
+lambd = 0.7
+# parameters for diffusion model
+batch_size = 4096
+num_epochs = 10001
+lr = 1e-3
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

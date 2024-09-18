@@ -4,9 +4,9 @@ import os
 from lib.info import *
 from evaluator.privacy.eval_helper import sample_half_data
 import pickle
-from synthesizer.mst.data_trasnformer import DataTransformer
-from synthesizer.mst import Dataset, reverse_data
-from synthesizer.mst.train_wrapper import MST_no_privacy, MST_private
+from synthesizer.pgm.data_trasnformer import DataTransformer
+from synthesizer.pgm import Dataset, reverse_data
+from synthesizer.pgm.train_wrapper import MST_no_privacy, MST_private
 
 
 def mst_trainer(args, data_pd, discrete_columns):
@@ -20,7 +20,7 @@ def mst_trainer(args, data_pd, discrete_columns):
     num_iters = model_params["num_iters"]
     cliques2 = model_params["2_cliques"]
     # cliques3 = model_params["3_cliques"]
-    
+
     data_transformer = DataTransformer(max_bins)
 
     transformed_data, domain = data_transformer.fit_transform(data_pd, discrete_columns)
@@ -30,20 +30,18 @@ def mst_trainer(args, data_pd, discrete_columns):
     # learned_pgm, supports = MST_no_privacy(
     #     data, epsilon, delta, [bi_nums, tri_nums], num_iters, cliques2, cliques3, device="cpu"
     # )
-    
-    learned_pgm, supports = MST_private(
-        data, epsilon, delta, bi_nums, num_iters, cliques2, device="cpu"
-    )
+
+    learned_pgm, supports = MST_private(data, epsilon, delta, bi_nums, num_iters, cliques2, device="cpu")
 
     model = {}
     model["learned_pgm"] = learned_pgm
     model["data_transformer"] = data_transformer
     model["supports"] = supports
-    
+
     return model
 
 
-def train_and_sample(args, data, membership_info, id, attack_dir, cuda):
+def train_and_sample(config, data, cur_shadow_dir, cuda, n_syn_dataset):
     """
     Train and sample TabDDPM given half of the data.
     Save the model and samples to the attack directory.
@@ -59,35 +57,32 @@ def train_and_sample(args, data, membership_info, id, attack_dir, cuda):
     Returns:
         None
     """
-    all_data_pd, discrete_columns, meta_data, dup_list = data
+    shadow_data_pd, discrete_columns, meta_data = data
     # fit the model enough more to evaluate the privacy risk
-    args["model_params"]["num_iters"] = 5000
-    args["model_params"]["max_bins"] = 5
-    args["model_params"]["epsilon"] = 30000000.0
-    args["model_params"]["delta"] = 1e-8
-    
-    num_samples = args["sample_params"]["num_samples"]
-    
-    train_index = sample_half_data(all_data_pd, dup_list, membership_info)
-    train_data_pd = all_data_pd.iloc[train_index]
+    config["model_params"]["num_iters"] = 5000
+    config["model_params"]["max_bins"] = 5
+    config["model_params"]["epsilon"] = 30000000.0
+    config["model_params"]["delta"] = 1e-8
+
+    num_samples = len(shadow_data_pd)
 
     print("start training...")
-    model = mst_trainer(args, train_data_pd, discrete_columns)
-    
-    # save the model
-    os.makedirs(attack_dir, exist_ok=True)
-    temp_path = os.path.join(attack_dir, "model_{}.pt".format(id))
-    pickle.dump(model, open(temp_path, "wb"))
-    
-    print("start sampling...")
-    learned_pgm = model["learned_pgm"]
-    supports = model["supports"]
-    data_transformer = model["data_transformer"]
-    
-    synth = learned_pgm.synthetic_data(rows=num_samples)
-    syn_data = reverse_data(synth, supports)
+    model = mst_trainer(config, shadow_data_pd, discrete_columns)
 
-    sampled = data_transformer.inverse_transform(syn_data.df)
-    
-    sampled.to_csv(os.path.join(attack_dir, "sampled_{}.csv".format(id)), index=False)
-    
+    # save the model
+    os.makedirs(cur_shadow_dir, exist_ok=True)
+    temp_path = os.path.join(cur_shadow_dir, "model.pt")
+    pickle.dump(model, open(temp_path, "wb"))
+
+    print("start sampling...")
+    for i in range(n_syn_dataset):
+        learned_pgm = model["learned_pgm"]
+        supports = model["supports"]
+        data_transformer = model["data_transformer"]
+
+        synth = learned_pgm.synthetic_data(rows=num_samples)
+        syn_data = reverse_data(synth, supports)
+
+        sampled = data_transformer.inverse_transform(syn_data.df)
+
+        sampled.to_csv(os.path.join(cur_shadow_dir, "sampled_{}.csv".format(i)), index=False)

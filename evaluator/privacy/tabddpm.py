@@ -60,11 +60,11 @@ def tabddpm_trainer(args, data_pd, discrete_columns, meta_data, device):
     trainer = Trainer(diffusion, train_loader, lr, weight_decay, steps, device)
 
     trainer.run_loop()
-    
+
     return trainer
 
 
-def train_and_sample(args, data, membership_info, id, attack_dir, cuda):
+def train_and_sample(config, data, cur_shadow_dir, cuda, n_syn_dataset):
     """
     Train and sample TabDDPM given half of the data.
     Save the model and samples to the attack directory.
@@ -80,29 +80,26 @@ def train_and_sample(args, data, membership_info, id, attack_dir, cuda):
     Returns:
         None
     """
-    all_data_pd, discrete_columns, meta_data, dup_list = data
+    shadow_data_pd, discrete_columns, meta_data = data
     device = torch.device("cuda:" + cuda)
     # fit the model enough more to evaluate the privacy risk
     # args["model_params"]["steps"] = 20000
     # args["model_params"]["num_timesteps"] = 1000
-    num_samples = args["sample_params"]["num_samples"]
-    
-    train_index = sample_half_data(all_data_pd, dup_list, membership_info)
-    train_data_pd = all_data_pd.iloc[train_index]
+    num_samples = len(shadow_data_pd)
 
     print("start training...")
-    trainer = tabddpm_trainer(args, train_data_pd, discrete_columns, meta_data, device)
-    
+    trainer = tabddpm_trainer(config, shadow_data_pd, discrete_columns, meta_data, device)
+
     # save the model
-    os.makedirs(attack_dir, exist_ok=True)
-    torch.save(trainer.diffusion, os.path.join(attack_dir, "model_{}.pt".format(id)))
-    
+    os.makedirs(cur_shadow_dir, exist_ok=True)
+    torch.save(trainer.diffusion, os.path.join(cur_shadow_dir, "model.pt"))
+
     print("start sampling...")
-    data_transformer = trainer.diffusion.data_transformer
-    empirical_class_dist = data_transformer.empirical_class_dist
+    for i in range(n_syn_dataset):
+        data_transformer = trainer.diffusion.data_transformer
+        empirical_class_dist = data_transformer.empirical_class_dist
 
-    gen_x, gen_y = trainer.diffusion.sample_all(num_samples, batch_size=10000, y_dist=empirical_class_dist)
+        gen_x, gen_y = trainer.diffusion.sample_all(num_samples, batch_size=10000, y_dist=empirical_class_dist)
 
-    sampled = data_transformer.inverse_transform(gen_x, gen_y)
-    sampled.to_csv(os.path.join(attack_dir, "sampled_{}.csv".format(id)), index=False)
-    
+        sampled = data_transformer.inverse_transform(gen_x, gen_y)
+        sampled.to_csv(os.path.join(cur_shadow_dir, "sampled_{}.csv".format(i)), index=False)

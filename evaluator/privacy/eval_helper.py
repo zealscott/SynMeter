@@ -11,122 +11,171 @@ import scienceplots
 import json
 
 
-def train_sample_synthesizer(model, dataset, n_gen, cuda):
+def train_sample_synthesizer(model, dataset, m_shadow_models, n_syn_dataset, cuda):
     """
     Trains and samples a synthesizer model.
 
     Args:
         model (str): The name of the model.
         dataset (str): The name of the dataset.
-        n_gen (int): The number of models to train and sample.
+        m_shadow_models (int): The number of synthesizer to train.
+        n_syn_dataset (int): The number of synthetic datasets to generate.
         cuda (bool): Whether to use CUDA for training.
 
     Returns:
         dict: A dictionary containing the membership information for each data point.
     """
+    # perpare saved dir
+    privacy_dir = os.path.join(ROOT_DIR, "exp", dataset, model, "privacy")
+    os.makedirs(privacy_dir, exist_ok=True)
+
     # load template config
     model_config = "exp/{0}/{1}/config.toml".format(dataset, model)
     config = load_config(os.path.join(ROOT_DIR, model_config))
-
     path_params = config["path_params"]
     # load all data
     all_data_pd, meta_data, discrete_columns = read_csv(path_params["raw_data"], path_params["meta_data"])
 
-    dup_list = find_duplicates(all_data_pd)
+    # duplicate
+    clean_data_pd = all_data_pd.drop_duplicates().reset_index(drop=True)
 
-    membership_info = {}
-    for i in range(len(all_data_pd)):
-        membership_info[i] = []
+    # we use the same technique as shadow model training
+    # make sure each sample is seen exactly once
+    size = len(clean_data_pd)
+    np.random.seed(0)
+    keep = np.random.uniform(0, 1, size=(m_shadow_models, size))
+    order = keep.argsort(0)
+    keep = order < int(0.5 * m_shadow_models)
 
-    # perpare saved dir
-    privacy_dir = os.path.join(ROOT_DIR, "exp", dataset, model, "privacy")
-
-    os.makedirs(privacy_dir, exist_ok=True)
+    if "privsyn" in model:
+        model_name = "privsyn"
+    elif "mst" in model:
+        model_name = "mst"
+    elif "tablediffusion" in model:
+        model_name = "tablediffusion"
+    elif "pategan" in model:
+        model_name = "pategan"
+    elif "tabsyn" in model:
+        model_name = "tabsyn"
+    else:
+        model_name = model
 
     # dynamically import model interface
-    synthesizer = __import__("evaluator.privacy." + model, fromlist=[model])
+    synthesizer = __import__("evaluator.privacy." + model_name, fromlist=[model_name])
 
-    # pack all data since they are static
-    data = [all_data_pd, discrete_columns, meta_data, dup_list]
     # train model and sample
-    for i in range(n_gen):
-        print("start training {0}/{1}  model".format(i, n_gen))
-        try:
-            synthesizer.train_and_sample(config, data, membership_info, i, privacy_dir, cuda)
-        except Exception as e:
-            print("training {0}/{1} model failed".format(i, n_gen))
-            print(e)
-            continue
+    for shadow_id in range(m_shadow_models):
+        print("start training {0}/{1}  model".format(shadow_id, m_shadow_models))
+        # perpare saved dir
+        cur_shadow_dir = os.path.join(privacy_dir, str(shadow_id))
+        os.makedirs(cur_shadow_dir, exist_ok=True)
 
-    # save membership info
-    with open(os.path.join(privacy_dir, "membership_info.pkl"), "wb") as f:
-        pickle.dump(membership_info, f)
+        # membership info
+        cur_keep = np.array(keep[shadow_id], dtype=bool)
+        cur_member = cur_keep.nonzero()[0]
 
-    return membership_info
+        # select data for this shadow model
+        shadow_data_pd = clean_data_pd.iloc[cur_member].reset_index(drop=True)
+        print(f"{shadow_id} shadow data size: {len(shadow_data_pd)}/{len(clean_data_pd)}")
+
+        # pack all data
+        data = [shadow_data_pd, discrete_columns, meta_data]
+
+        synthesizer.train_and_sample(config, data, cur_shadow_dir, cuda, n_syn_dataset)
+
+        # save membership info
+        with open(os.path.join(cur_shadow_dir, "member.pkl"), "wb") as f:
+            pickle.dump(cur_member, f)
 
 
-def privacy_evaluation(config, n_gen, model, dataset, cuda):
-    # train and sample synthetic data
-    membership_info = train_sample_synthesizer(model, dataset, n_gen, cuda)
-    print("finish training and sampling, begin to evaluate privacy")
-
-    with open(
-        os.path.join(ROOT_DIR, "exp", dataset, model, "privacy", "membership_info.pkl"),
-        "rb",
-    ) as f:
-        membership_info = pickle.load(f)
-
-    member_nbrs_dist = {}
-    for id, _ in membership_info.items():
-        member_nbrs_dist[id] = []
-
+def compute_MDS(model, dataset, m_shadow_models, n_syn_dataset):
     privacy_dir = os.path.join(ROOT_DIR, "exp", dataset, model, "privacy")
 
-    raw_data_path = config["path_params"]["raw_data"]
-    meta_data_path = config["path_params"]["meta_data"]
+    # load template config
+    model_config = "exp/{0}/{1}/config.toml".format(dataset, model)
+    config = load_config(os.path.join(ROOT_DIR, model_config))
+    path_params = config["path_params"]
+    # load all data
+    all_data_pd, meta_data, discrete_columns = read_csv(path_params["raw_data"], path_params["meta_data"])
 
-    # get the distance for each row in syn data
-    for t in range(n_gen):
-        syn_data_path = os.path.join(privacy_dir, "sampled_{}.csv".format(t))
-        raw_data_arr, syn_data_arr, n_features = normalize_data(raw_data_path, syn_data_path, meta_data_path)
-        distances = nearest_neighbors(syn_data_arr, raw_data_arr)
-        for id, dist in enumerate(distances):
-            normalized_dist = dist[0] / np.sqrt(n_features)
-            member_nbrs_dist[id].append(normalized_dist)
+    # duplicate
+    print(f"original data size: {len(all_data_pd)}")
+    clean_data_pd = all_data_pd.drop_duplicates().reset_index(drop=True)
+    print(f"duplicate data size: {len(clean_data_pd)}")
 
-    # compute the disclosure scores for each record when in or not in the training set
-    disclosure_scores = {}
-    not_in_cnt = 0
-    for id, label in membership_info.items():
-        print("id: {}".format(id))
-        print("label: {}".format(label))
-        in_label = [index for index, value in enumerate(label) if value == 1 and index < n_gen]
-        out_label = [index for index, value in enumerate(label) if value == 0 and index < n_gen]
-        print("id {} in_label: {}, out_label: {}".format(id, len(in_label), len(out_label)))
-        assert len(in_label) + len(out_label) == n_gen
-        if len(in_label) == 0 or len(out_label) == 0:
-            print("id {} is not in in_label or out_label, omit".format(id))
-            not_in_cnt += 1
-            continue
-        print("id {} in/out ratio: {}".format(id, len(in_label) / len(out_label)))
-        in_dist = [member_nbrs_dist[id][i] for i in in_label]
-        out_dist = [member_nbrs_dist[id][i] for i in out_label]
+    # init the distance dict
+    in_member_nbrs_dist = {}
+    out_member_nbrs_dist = {}
+    for id in range(len(clean_data_pd)):
+        in_member_nbrs_dist[id] = []
+        out_member_nbrs_dist[id] = []
 
-        # compute pairwise distance difference
-        dist_diff = []
-        for i in in_dist:
-            for o in out_dist:
-                dist_diff.append(abs(o - i))
-        # average distance difference for each data point
-        disclosure_scores[id] = sum(dist_diff) / len(dist_diff)
+    for shadow_id in range(m_shadow_models):
+        cur_shadow_dir = os.path.join(privacy_dir, str(shadow_id))
+        cur_shadow_dist = {}
+        for id in range(n_syn_dataset):
+            syn_data_path = os.path.join(cur_shadow_dir, "sampled_{}.csv".format(id))
+            raw_data_arr, syn_data_arr, n_features = normalize_data(
+                clean_data_pd, syn_data_path, path_params["meta_data"]
+            )
+            distances = nearest_neighbors(syn_data_arr, raw_data_arr)
 
-    print("not in cnt: {}".format(not_in_cnt))
-    # membership disclosure score
-    MDS = max(disclosure_scores.values())
+            for i, dist in enumerate(distances):
+                normalized_dist = dist[0] / np.sqrt(n_features)
+                if i not in cur_shadow_dist:
+                    cur_shadow_dist[i] = [normalized_dist]
+                else:
+                    cur_shadow_dist[i].append(normalized_dist)
+        with open(os.path.join(cur_shadow_dir, "member.pkl"), "rb") as f:
+            member = pickle.load(f)
+        # get the expected distance for each record
+        for id, dist_list in cur_shadow_dist.items():
+            mean_dist = np.mean(dist_list)
+            if id in member:
+                in_member_nbrs_dist[id].append(mean_dist)
+            else:
+                out_member_nbrs_dist[id].append(mean_dist)
+
+    # get the DS for each record
+    DS = {}
+    for id in range(len(clean_data_pd)):
+        mean_in_dist = np.mean(in_member_nbrs_dist[id])
+        mean_out_dist = np.mean(out_member_nbrs_dist[id])
+        DS[id] = abs(mean_in_dist - mean_out_dist)
+        print(
+            f"for record {id}, in member size: {len(in_member_nbrs_dist[id])}, out member size: {len(out_member_nbrs_dist[id])}, DS: {DS[id]}"
+        )
+
+    # get the MDS
+    MDS = max(DS.values())
+
     print("membership disclosure score: {}".format(MDS))
+
+    plt.style.use("science")
+    sns.set_theme()
+    sns.set_style("whitegrid")
+    sns.set_palette("Set2")
+    plt.figure(figsize=(8, 6))
+    plt.hist(list(DS.values()), bins=50)
+    plt.xlabel("distance difference")
+    plt.ylabel("frequency")
+    plt.title("disclosure score distribution")
+    plt.savefig(os.path.join(privacy_dir, "disclosure_score.png"))
+
     # save the distance difference
     with open(os.path.join(privacy_dir, "disclosure_score.pkl"), "wb") as f:
-        pickle.dump(disclosure_scores, f)
+        pickle.dump(DS, f)
+
+    return MDS
+
+
+def privacy_evaluation(config, m_shadow_models, n_syn_dataset, model, dataset, cuda):
+    # train and sample synthetic data
+    train_sample_synthesizer(model, dataset, m_shadow_models, n_syn_dataset, cuda)
+    print("finish training and sampling, begin to evaluate privacy")
+
+    # compute the membership disclosure score
+    MDS = compute_MDS(model, dataset, m_shadow_models, n_syn_dataset)
 
     return {"MDS": MDS}
 

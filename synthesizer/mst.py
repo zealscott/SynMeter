@@ -1,6 +1,6 @@
 import pandas as pd
 from lib.commons import improve_reproducibility,read_csv
-from .mst import train_wrapper_PGM, reverse_data
+from .pgm import train_wrapper_PGM, reverse_data
 from lib.info import STORAGE,N_EXPS
 from lib.tune_helper import select_three_clique, select_two_clique
 import os

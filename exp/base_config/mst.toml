@@ -1,4 +1,4 @@
-# template pgm config file
+# template MST config file
 
 [path_params]
 meta_data = "datasets/adult_test/adult-domain.json"
@@ -6,13 +6,13 @@ raw_data = "datasets/adult_test/adult.csv"
 train_data = "datasets/adult/train.csv"
 val_data = "datasets/adult/val.csv"
 test_data = "datasets/adult/test.csv"
-loss_record = "exp/adult/pgm/loss.csv"
-out_model = "exp/adult/pgm/pgm.pkl"
-out_data = "exp/adult/pgm/adult.csv"
-fidelity_result = "exp/abalone/pgm/fidelity_result.csv"
-fidelity_train_result = "exp/abalone/pgm/fidelity_train_result.csv"
-privacy_result = "exp/abalone/pgm/privacy_result.csv"
-utility_result = "exp/abalone/pgm/utility_result.csv"
+loss_record = "exp/adult/mst/loss.csv"
+out_model = "exp/adult/mst/mst.pkl"
+out_data = "exp/adult/mst/adult.csv"
+fidelity_result = "exp/abalone/mst/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/mst/fidelity_train_result.csv"
+privacy_result = "exp/abalone/mst/privacy_result.csv"
+utility_result = "exp/abalone/mst/utility_result.csv"
 
 [model_params]
 epsilon = 30000000.0 # infinite privacy budget

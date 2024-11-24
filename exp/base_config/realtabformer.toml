@@ -1,0 +1,23 @@
+
+# template realtabformer config file
+
+[path_params]
+meta_data = "datasets/abalone/abalone.json"
+raw_data = "datasets/abalone/abalone.csv"
+train_data = "datasets/abalone/train.csv"
+val_data = "datasets/abalone/val.csv"
+test_data = "datasets/abalone/test.csv"
+loss_record = "exp/abalone/realtabformer/loss.csv"
+out_model = "exp/abalone/realtabformer/realtabformer.pt"
+out_data = "exp/abalone/realtabformer/abalone.csv"
+fidelity_result = "exp/abalone/realtabformer/fidelity_result.csv"
+fidelity_train_result = "exp/abalone/realtabformer/fidelity_train_result.csv"
+privacy_result = "exp/abalone/realtabformer/privacy_result.csv"
+utility_result = "exp/abalone/realtabformer/utility_result.csv"
+
+[model_params]
+gradient_accumulation_steps = 4
+
+
+[sample_params]
+num_samples = 0 # sample the same number of samples as the train+val data

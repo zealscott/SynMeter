@@ -31,6 +31,7 @@ Systematic Assessment of Tabular Data Synthesis Algorithms
 
 ## What's New
 [Nov 24, 2024] We add a new SOTA HP synthesizer [REaLTabFormer](https://arxiv.org/pdf/2302.02041) to SynMeter! Try it out!
+
 [Sep 18, 2024] We add a new SOTA HP synthesizer [TabSyn](https://openreview.net/forum?id=4Ay23yeuz0) to SynMeter! Try it out!
 
 
